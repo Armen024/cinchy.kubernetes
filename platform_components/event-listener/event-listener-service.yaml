@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-listener-service
+  labels:
+    name: event-listener-service
+spec:
+  ports:
+  - name: event-listener-app-http
+    port: 80
+    targetPort: 8000
+  selector:
+    name: event-listener-app

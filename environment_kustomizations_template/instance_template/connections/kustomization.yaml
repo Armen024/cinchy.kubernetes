@@ -1,0 +1,88 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/connections
+namespace: <<namespace>>
+commonLabels:
+  app: connections
+  env: <<namespace>>
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: connections-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: <<connections_image_repo_uri>>:<<connections_image_tag>>
+    - op: add
+      path: /spec/template/spec/volumes/-
+      value: 
+        name: connections-volume-redis-password
+        secret:
+          secretName: redis-redis-cluster
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value: 
+        name: connections-volume-redis-password
+        readOnly: true
+        mountPath: "/usr/share/redis/redis-redis-cluster"
+- target:
+    version: v1
+    kind: Secret
+    name: connections-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: <<connections_appsettings_json>>
+- target:
+    version: v1
+    kind: Secret
+    name: connections-secret-config
+  patch: |-
+    - op: replace
+      path: /data/config.json
+      value: <<connections_config_json>>
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: connections-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: <<namespace>>-connections-app
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-connectionsjobcancellationrequests
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: <<namespace>>-connectionsjobcancellationrequests
+    - op: replace
+      path: /metadata/namespace
+      value: kafka
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-connectionsjobqueue
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: <<namespace>>-connectionsjobqueue
+    - op: replace
+      path: /metadata/namespace
+      value: kafka
+- target:
+    group: networking.istio.io
+    version: v1alpha3
+    kind: DestinationRule
+    name: connections-destinationrule
+  patch: |-
+    - op: replace
+      path: /spec/trafficPolicy/loadBalancer/consistentHash/httpCookie/name
+      value: <<namespace>>-connections-canary

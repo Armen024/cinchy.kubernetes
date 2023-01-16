@@ -1,0 +1,39 @@
+{
+    "CinchyClientSettings": {
+        "Url": "<<protocol>>://<<host_name>><<application_path>>",
+        "Username": "",
+        "Password": ""  
+    },
+    "AppSettings": {
+    "Model": "Cinchy",
+    "TempDirectory": "/tmp",
+    "TlsVersion": "",
+    "WorkerThreadCount": "12",
+    "WorkerBatchSizeLimit": "20",
+    "KafkaClientConfig": {
+      "BootstrapServers": "kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    },
+    "KafkaMessageConsumeMsLimit": 100,
+    "KafkaMessageBatchConsumeMsLimit": 200
+  },
+  "ConnectionStrings": {
+    "SqlServer": ""
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Warning",
+        "System.Net": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
+        }
+      }
+    ]
+  }
+}

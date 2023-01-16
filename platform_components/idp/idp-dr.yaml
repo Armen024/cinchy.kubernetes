@@ -1,0 +1,16 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: idp-destinationrule
+  namespace: istio-system
+spec:
+  host: idp-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpCookie:
+          name: idp-canary
+          ttl: 300s
+    # tls:
+    #   mode: DISABLE

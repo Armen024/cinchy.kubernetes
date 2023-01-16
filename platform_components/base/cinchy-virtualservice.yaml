@@ -1,0 +1,70 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cinchy-virtualservice
+spec:
+  hosts:
+  - <host>
+  gateways:
+  - "istio-system/ext-gateway"
+  http:
+  - match:
+    - uri:
+        prefix: "/connections/"
+    - uri:
+        prefix: "/connections"
+    rewrite:
+      uri: <base_path>
+    route:
+    - destination:
+        host: <destination_host>
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: "/event-listener/"
+    - uri:
+        prefix: "/event-listener"
+    rewrite:
+      uri: <base_path>
+    route:
+    - destination:
+        host: <destination_host>
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: "/forms/"
+    - uri:
+        prefix: "/forms"
+    rewrite:
+      uri: <base_path>
+    route:
+    - destination:
+        host: <destination_host>
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: "/idp/"
+    - uri:
+        prefix: "/idp"
+    rewrite:
+      uri: <base_path>
+    route:
+    - destination:
+        host: <destination_host>
+        port:
+          number: 80
+  - match:
+    - uri:
+        prefix: "/"
+    - uri:
+        prefix: ""
+    rewrite:
+      uri: <base_path>
+    route:
+    - destination:
+        host: <destination_host>
+        port:
+          number: 80

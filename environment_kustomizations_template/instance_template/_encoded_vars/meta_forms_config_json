@@ -1,0 +1,6 @@
+{
+  "authority": "<<protocol>>://<<host_name>><<application_path>>/idp",
+  "cinchyRootUrl": "<<protocol>>://<<host_name>><<application_path>>",
+  "clientId": "cinchy_meta_forms",
+  "redirectUri": "<<protocol>>://<<host_name>><<application_path>>/metaforms"
+}

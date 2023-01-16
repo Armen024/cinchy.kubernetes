@@ -1,0 +1,16 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: connections-destinationrule
+  namespace: istio-system
+spec:
+  host: connections-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpCookie:
+          name: connections-canary
+          ttl: 300s
+    # tls:
+    #   mode: DISABLE

@@ -1,0 +1,13 @@
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Flow
+metadata:
+  name: event-listener-logging-flow
+spec:
+  filters:
+    - tag_normaliser: {}
+  match:
+    - select:
+        labels:
+          name: event-listener-app
+  localOutputRefs:
+    - event-listener-logging-stdout

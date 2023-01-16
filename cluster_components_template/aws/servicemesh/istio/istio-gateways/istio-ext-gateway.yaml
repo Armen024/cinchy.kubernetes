@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: ext-gateway
+  namespace: istio-system
+spec:
+  selector:
+    app: istio-ingressgateway
+    istio: ingressgateway
+  servers:
+  - port:
+     number: 80
+     name: http
+     protocol: HTTP
+    hosts:
+    - "<<istio_ingress_gateway_host>>"
+  - port:
+     number: 443
+     name: https
+     protocol: HTTP
+    tls:
+      mode: AUTO_PASSTHROUGH
+    hosts:
+    - "<<istio_ingress_gateway_host>>"

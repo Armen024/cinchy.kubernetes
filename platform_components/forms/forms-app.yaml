@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forms-app
+  labels:
+    access: public
+    name: forms-app
+spec:
+  selector:
+    matchLabels:
+      name: forms-app
+  template:
+    metadata:
+      labels:
+        name: forms-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - forms-app
+            topologyKey: "kubernetes.io/hostname"
+      serviceAccountName: forms-serviceaccount
+      volumes:
+      - name: forms-volume-config
+        secret:
+          secretName: forms-secret-config
+      imagePullSecrets:
+      - name: ecr-docker-login
+      containers:
+      - name: forms
+        image: <image>
+        env:
+          - name: OPENSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: opensearch-credentials
+                key: password
+          - name: OPENSEARCH_USERNAME
+            value: admin
+        volumeMounts:
+        - name: forms-volume-config
+          readOnly: true
+          mountPath: "/usr/share/nginx/html/assets/config"
+        ports:
+        - name: forms-port
+          containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "400m"
+            memory: "4G"
+        imagePullPolicy: Always

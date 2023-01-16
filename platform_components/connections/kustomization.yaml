@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- connections-job-start-queue-kafka-topic.yaml
+- connections-job-cancel-queue-kafka-topic.yaml
+- connections-secret-appsettings.yaml
+- connections-secret-config.yaml
+- connections-persistent-volume-claim.yaml
+- connections-serviceaccount.yaml
+- connections-app.yaml
+- connections-service.yaml
+- connections-logging-flow.yaml
+- connections-logging-opensearch.yaml
+- connections-app-hpa.yaml
+- connections-dr.yaml

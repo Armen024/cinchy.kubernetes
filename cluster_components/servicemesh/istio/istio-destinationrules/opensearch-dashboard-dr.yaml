@@ -1,0 +1,11 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: opensearch-dashboard-destinationrule
+  namespace: istio-system
+spec:
+  host: opensearch-dashboard-opensearch-dashboards.logging.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN

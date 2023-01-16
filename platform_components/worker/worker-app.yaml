@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-app
+  labels:
+    access: public
+    name: worker-app
+spec:
+  selector:
+    matchLabels:
+      name: worker-app
+  template:
+    metadata:
+      labels:
+        name: worker-app
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - worker-app
+            topologyKey: "kubernetes.io/hostname"
+      serviceAccountName: worker-serviceaccount
+      volumes:
+      - name: worker-volume-appsettings
+        secret:
+          secretName: worker-secret-appsettings
+      imagePullSecrets:
+      - name: ecr-docker-login
+      containers:
+      - name: worker
+        image: <image>
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          privileged: false
+        env:
+          - name: OPENSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: opensearch-credentials
+                key: password
+          - name: OPENSEARCH_USERNAME
+            value: admin
+          - name: CinchyEnvironment
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: CINCHY_ENCRYPTION_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: encryptionkey
+          - name: CinchyClientSettings__Url
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: url
+          - name: CINCHY_WORKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: workerpassword
+        volumeMounts:
+        - name: worker-volume-appsettings
+          readOnly: true
+          mountPath: "/usr/share/appsettings"
+        ports:
+        - name: worker-port
+          containerPort: 8000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "1"
+            memory: "1G"
+        imagePullPolicy: Always
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command:
+        #       - "bash"
+        #       - "-c"
+        #       - |
+        #         KB_URL=http://opensearch-dashboard-opensearch-dashboards.logging.svc.cluster.local:5601/dashboard
+        #         echo $KB_URL
+        #         while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
+        #         WORKER=$(curl -u ${OPENSEARCH_USERNAME}:${OPENSEARCH_PASSWORD} -X GET $KB_URL/api/saved_objects/_find?type=index-pattern | sed -e 's/[{}]/''/g' | awk -v RS=',"' -F: '/^id/ {print $2}' | tr -d '"' | grep $CinchyEnvironment-worker-app)
+        #         if [ $WORKER = $CinchyEnvironment-worker-app ]; then echo "Cool"; else curl -u ${OPENSEARCH_USERNAME}:${OPENSEARCH_PASSWORD} -XPOST "$KB_URL/api/saved_objects/index-pattern" -H 'osd-xsrf: true' -H 'Content-Type: application/json; charset=utf-8' -d '{"attributes": {"title": "'"$CinchyEnvironment-worker-app"'","timeFieldName": "@t"}}'; fi

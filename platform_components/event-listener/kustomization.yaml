@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- event-listener-kafka-topic.yaml
+- event-listener-secret-appsettings.yaml
+- event-listener-volume-claim.yaml
+- event-listener-serviceaccount.yaml
+- event-listener-app.yaml
+- event-listener-app-hpa.yaml
+- event-listener-service.yaml
+- event-listener-logging-flow.yaml
+- event-listener-logging-opensearch.yaml

@@ -1,0 +1,53 @@
+{
+  "CinchyClientSettings": {
+    "Url": "<<protocol>>://<<host_name>><<application_path>>",
+    "Username": "",
+    "Password": ""  
+  },
+  "AppSettings": {
+    "TempDirectory": "/app/tmp",
+    "Model": "Cinchy",
+    "KafkaClientConfig": {
+      "BootstrapServers": "kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    },
+    "KafkaConsumerThreadCount": "2",
+    "KafkaMessageConsumeMsLimit": 100,
+    "KafkaMessageBatchConsumeMsLimit": 200,
+    "StorageType": "<<connections_storage_type>>",
+    "BasePathOverride": ""
+  },
+  "ConnectionStrings": {
+    "Redis": "redis-redis-cluster.redis.svc.cluster.local:6379"
+  },
+  "AzureBlobStorageSettings": {
+    "ConnectionString": "<<connections_azure_blob_storage_conn_str>>",
+    "Container": "<<connections_storage_container_name>>",
+    "BasePath": "<<connections_storage_basepath>>"
+  },
+  "S3Settings": {
+    "AccessKey": "<<connections_s3_access_key>>",
+    "SecretAccessKey": "<<connections_s3_secret_access_key>>",
+    "Region": "<<aws_region>>",
+    "Bucket": "<<cinchy_connections_s3_bucket>>",
+    "BasePath": "<<connections_storage_basepath>>",
+    "ServiceURL": "<<connections_s3_service_url>>"
+  },
+  "AllowedHosts": "*",
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Verbose",
+      "Override": {
+        "Microsoft": "Verbose",
+        "System.Net": "Verbose"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
+        }
+      }
+    ]
+  }
+}

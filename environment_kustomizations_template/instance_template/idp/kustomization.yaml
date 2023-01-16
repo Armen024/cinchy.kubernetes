@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/idp
+namespace: <<namespace>>
+commonLabels:
+  app: idp
+  env: <<namespace>>
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: idp-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: <<idp_image_repo_uri>>:<<idp_image_tag>>
+    - op: add
+      path: /spec/template/spec/volumes/-
+      value: 
+        name: idp-volume-redis-password
+        secret:
+          secretName: redis-redis-cluster
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value: 
+        name: idp-volume-redis-password
+        readOnly: true
+        mountPath: "/usr/share/redis/redis-redis-cluster"
+- target:
+    version: v1
+    kind: Secret
+    name: idp-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: <<idp_appsettings_json>>
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: idp-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: <<namespace>>-idp-app
+- target:
+    group: networking.istio.io
+    version: v1alpha3
+    kind: DestinationRule
+    name: idp-destinationrule
+  patch: |-
+    - op: replace
+      path: /spec/trafficPolicy/loadBalancer/consistentHash/httpCookie/name
+      value: <<namespace>>-idp-canary

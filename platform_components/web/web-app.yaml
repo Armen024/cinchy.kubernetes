@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  labels:
+    access: public
+    name: web-app
+spec:
+  selector:
+    matchLabels:
+      name: web-app
+  template:
+    metadata:
+      labels:
+        name: web-app
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "false"
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - web-app
+            topologyKey: "kubernetes.io/hostname"
+      #terminationGracePeriodSeconds: 300
+      serviceAccountName: web-serviceaccount
+      volumes:
+      - name: web-volume-appsettings
+        secret:
+          secretName: web-secret-appsettings
+      imagePullSecrets:
+      - name: ecr-docker-login
+      containers:
+      - name: web
+        image: <image>
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          privileged: false
+        env:
+          - name: OPENSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: opensearch-credentials
+                key: password
+          - name: OPENSEARCH_USERNAME
+            value: admin
+          - name: CinchyEnvironment
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: CINCHY_ENCRYPTION_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: encryptionkey
+          - name: CinchyClientSettings__Url
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: url
+          - name: CINCHY_CONNECTIONS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: connectionspassword
+          - name: CINCHY_WORKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: workerpassword
+          - name: CINCHY_EVENTLISTENER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: eventlistenerpassword
+          - name: CINCHY_MAINTENANCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: maintenancepassword
+        volumeMounts:
+        - name: web-volume-appsettings
+          readOnly: true
+          mountPath: "/usr/share/appsettings"
+        ports:
+        - name: web-port
+          containerPort: 8000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "2"
+            memory: "4G"
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          initialDelaySeconds: 30
+          failureThreshold: 5
+          periodSeconds: 30
+          timeoutSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          failureThreshold: 200
+          periodSeconds: 10
+          #timeoutSeconds: 90
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          initialDelaySeconds: 30
+          failureThreshold: 5
+          periodSeconds: 30
+          timeoutSeconds: 300
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command:
+        #       - "bash"
+        #       - "-c"
+        #       - |
+        #         KB_URL=http://opensearch-dashboard-opensearch-dashboards.logging.svc.cluster.local:5601/dashboard
+        #         echo $KB_URL
+        #         while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
+        #         WEB=$(curl -u ${OPENSEARCH_USERNAME}:${OPENSEARCH_PASSWORD} -X GET $KB_URL/api/saved_objects/_find?type=index-pattern | sed -e 's/[{}]/''/g' | awk -v RS=',"' -F: '/^id/ {print $2}' | tr -d '"' | grep $CinchyEnvironment-web-app)
+        #         if [ $WEB = $CinchyEnvironment-web-app ]; then echo "Cool"; else curl -u ${OPENSEARCH_USERNAME}:${OPENSEARCH_PASSWORD} -XPOST "$KB_URL/api/index_patterns/index_pattern" -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'{"override": false,"refresh_fields": true,"index_pattern": {"title": "'"$CinchyEnvironment-web-app"'", "timeFieldName":"@t"}}'; fi

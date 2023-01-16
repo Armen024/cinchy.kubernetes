@@ -1,0 +1,68 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/event-listener
+namespace: <<namespace>>
+commonLabels:
+  app: event-listener
+  env: <<namespace>>
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: event-listener-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: <<event_listener_image_repo_uri>>:<<event_listener_image_tag>>
+    - op: replace
+      path: /spec/template/spec/containers/0/env/0/name
+      value: <<namespace>>-EventListener_Node_Hostname
+    - op: replace
+      path: /spec/template/spec/containers/0/env/1/name
+      value: <<namespace>>-EventListener_Node_Port
+    - op: replace
+      path: /spec/template/spec/containers/0/env/2/name
+      value: <<namespace>>-EventListener_Node_Protocol
+    - op: add
+      path: /spec/template/spec/volumes/-
+      value: 
+        name: event-listener-volume-redis-password
+        secret:
+          secretName: redis-redis-cluster
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value: 
+        name: event-listener-volume-redis-password
+        readOnly: true
+        mountPath: "/usr/share/redis/redis-redis-cluster"
+- target:
+    version: v1
+    kind: Secret
+    name: event-listener-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: <<event_listener_appsettings_json>>
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: event-listener-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: <<namespace>>-event-listener-app
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-realtimedatasynctopic
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: <<namespace>>-realtimedatasynctopic
+    - op: replace
+      path: /metadata/namespace
+      value: kafka

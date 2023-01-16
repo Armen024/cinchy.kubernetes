@@ -1,0 +1,80 @@
+{
+  "ConfigSettings": {
+    "AppSettings": {
+      "CinchyUri": "<<protocol>>://<<host_name>><<application_path>>",
+      "CertificatePath": "/app/cinchyidentitysrv.pfx",
+      "CertificatePassword": "",
+      "SAMLClientEntityId": "",
+      "SAMLIDPEntityId": "",
+      "SAMLMetadataXmlPath": "",
+      "SAMLSSOServiceURL": "",
+      "SAMLEncryptedCertificatePath": "",
+      "SAMLEncryptedCertificatePassword": "",
+      "SAMLSignCertificatePath": "",
+      "SAMLSignCertificatePassword": "",
+      "AcsURLModule": "",
+      "StsPublicOriginUri": "<<protocol>>://<<host_name>><<application_path>>/idp",
+      "MaxRequestHeadersTotalSize": 65536,
+      "MaxRequestBufferSize": 65536,
+      "MaxRequestBodySize": -1,
+      "MachineKeyXml": "",
+      "DpApiKeyRingPath": "",
+      "TlsVersion": "1.2",
+      "CinchyAccessTokenLifetime": "0.00:30:00",
+      "DataChangeCallbackTimeout": 7,
+      "RefreshCacheTimeInMin": 10,
+      "DefaultExpirationCacheTimeInMin": 360,
+      "DBType": "<<dbtype>>"
+    },
+    "ConnectionStrings": {
+      "SqlServer": "<<database_connection_string>>",
+      "Redis": "redis-redis-cluster.redis.svc.cluster.local:6379"
+    },
+    "ExternalIdentityClaimSection": {
+      "FirstName": {
+        "ExternalClaimName": ""
+      },
+      "LastName": {
+        "ExternalClaimName": ""
+      },
+      "Email": {
+        "ExternalClaimName": ""
+      },
+      "MemberOf": {
+        "ExternalClaimName": ""
+      }
+    },
+    "ClusterCommunicationSettings": {
+      "UseKafka": true,
+      "KafkaCacheTopic": "",
+      "KafkaClientConfig": {
+        "BootstrapServers": "kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+      },
+      "ClusterIpAddresses": "",
+      "ClusterCommunicationProtocol": "http",
+      "ClusterCommunicationBaseUrl": "{PROTOCOL}://{IPADDRESS}/Cinchy"
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug"
+    }
+  },
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+	  "Override": {
+		"Microsoft": "Warning",
+		"Microsoft.Hosting.Lifetime": "Information"
+	  }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
+        }
+      }
+    ]
+  }
+}

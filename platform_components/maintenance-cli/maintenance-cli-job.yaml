@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: maintenance-cli-app
+  labels:
+    access: public
+    name: maintenance-cli-app
+spec:
+  concurrencyPolicy: Forbid
+  schedule: "0 0 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          volumes:
+          - name: maintenance-cli-volume-appsettings
+            secret:
+              secretName: maintenance-cli-secret-appsettings
+          restartPolicy: OnFailure
+          serviceAccountName: maintenance-cli-serviceaccount
+          imagePullSecrets:
+          - name: ecr-docker-login
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+          containers:
+            - name: maintenance-cli
+              image: <image>
+              imagePullPolicy: Always
+              command: ["dotnet"]
+              args: ["Cinchy.Maintenance.CLI.dll", "-h", "-s", "$(CINCHY_INSTANCE_URL)", "-u", "maintenance@cinchy.com", "-p", "$(CINCHY_MAINTENANCE_PASSWORD)", "-t", "30"]
+              volumeMounts:
+              - name: maintenance-cli-volume-appsettings
+                readOnly: true
+                mountPath: "/usr/share/appsettings"
+              env:
+                - name: OPENSEARCH_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: opensearch-credentials
+                      key: password
+                - name: OPENSEARCH_USERNAME
+                  value: admin
+                - name: CinchyEnvironment
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: CINCHY_ENCRYPTION_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: cinchy-environment-settings
+                      key: encryptionkey
+                - name: CinchyClientSettings__Url
+                  valueFrom:
+                    secretKeyRef:
+                      name: cinchy-environment-settings
+                      key: url
+                - name: CINCHY_MAINTENANCE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: cinchy-environment-settings
+                      key: maintenancepassword

@@ -1,0 +1,45 @@
+{
+    "CinchyClientSettings": {
+        "Url": "<<protocol>>://<<host_name>><<application_path>>",
+        "Username": "",
+        "Password": ""  
+    },
+    "AppSettings": {
+    "GetNewListenerConfigsInterval": "60",
+    "StateFileLocation": "/app/data/event-listener/statefiles",
+    "KafkaClientConfig": {
+      "BootstrapServers": "kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092"
+    }
+  },
+  "ConnectionStrings": {
+    "SqlServer": "",
+    "Redis": "redis-redis-cluster.redis.svc.cluster.local:6379"
+  },
+  "ClusterConfiguration": {
+    "lowerElectionTimeout": 150,
+    "upperElectionTimeout": 300,
+    "requestTimeout": "00:01:00",
+    "keepAliveTimeout": "00:02:00"
+  },
+  "AllowedHosts": "*",
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Warning",
+        "System.Net": "Warning",
+        "Microsoft.Hosting.Lifetime": "Information",
+        "DotNext.Net.Cluster": "Information",
+        "Cinchy.Common.Clustering.ClusterConfigurationProvider": "Information"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "formatter": "Serilog.Formatting.Compact.CompactJsonFormatter, Serilog.Formatting.Compact"
+        }
+      }
+    ]
+  }
+}

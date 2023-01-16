@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: forms-service
+  labels:
+    name: forms-service
+spec:
+  ports:
+  - name: forms-app-http
+    port: 80
+    targetPort: 8080
+  selector:
+    name: forms-app

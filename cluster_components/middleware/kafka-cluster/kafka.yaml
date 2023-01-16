@@ -1,0 +1,56 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: kafka-cluster
+spec:
+  kafka:
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication:
+          type: tls
+#      - name: external
+#        port: 9094
+#        type: nodeport
+#        tls: false
+    storage:
+      type: jbod
+      volumes:
+      - id: 0
+        type: persistent-claim
+        size: 20Gi
+        deleteClaim: false
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      log.retention.hours: 72
+#      log.segment.bytes: 10737418240
+      log.retention.check.interval.ms: 300000
+      log.retention.bytes: 1073741824
+      delete.topic.enable: true
+      auto.create.topics.enable: false
+      num.partitions: 100
+      default.replication.factor: 3
+    template:
+      pod:
+        priorityClassName: system-cluster-critical
+  zookeeper:
+    template:
+      pod:
+        priorityClassName: system-cluster-critical
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 20Gi
+      deleteClaim: false
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}

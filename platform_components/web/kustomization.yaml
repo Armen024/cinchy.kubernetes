@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- web-kafka-topic.yaml
+- web-secret-appsettings.yaml
+- web-serviceaccount.yaml
+- web-app.yaml
+- web-service.yaml
+- web-logging-flow.yaml
+- web-logging-opensearch.yaml
+- web-app-hpa.yaml
+- web-dr.yaml

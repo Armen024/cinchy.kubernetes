@@ -1,0 +1,26 @@
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Output
+metadata:
+ name: worker-logging-stdout
+spec:
+  elasticsearch:
+    host: opensearch-cluster-master.logging.svc.cluster.local
+    port: 9200
+    scheme: https
+    ssl_verify: false
+    ssl_version: TLSv1_2
+    index_name: "worker-app"
+    reconnect_on_error: true
+    reload_on_failure: true
+    reload_connections: false
+    request_timeout: "60"
+    user: admin
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: opensearch-credentials
+          key: password  
+    buffer:
+      timekey: 1m
+      timekey_wait: 30s
+      timekey_use_utc: true

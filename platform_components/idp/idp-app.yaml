@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idp-app
+  labels:
+    access: public
+    name: idp-app
+spec:
+  selector:
+    matchLabels:
+      name: idp-app
+  template:
+    metadata:
+      labels:
+        name: idp-app
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "false"
+        proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - idp-app
+            topologyKey: "kubernetes.io/hostname"
+      serviceAccountName: idp-serviceaccount
+      volumes:
+      - name: idp-volume-appsettings
+        secret:
+          secretName: idp-secret-appsettings
+      imagePullSecrets:
+      - name: ecr-docker-login
+      containers:
+      - name: idp
+        image: <image>
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          privileged: false
+        env:
+          - name: OPENSEARCH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: opensearch-credentials
+                key: password
+          - name: OPENSEARCH_USERNAME
+            value: admin 
+          - name: CinchyEnvironment
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: CINCHY_ENCRYPTION_KEY
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: encryptionkey
+          - name: CinchyClientSettings__Url
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: url
+          - name: CINCHY_CONNECTIONS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: connectionspassword
+          - name: CINCHY_WORKER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: workerpassword
+          - name: CINCHY_EVENTLISTENER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: eventlistenerpassword
+          - name: CINCHY_MAINTENANCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: cinchy-environment-settings
+                key: maintenancepassword
+        volumeMounts:
+        - name: idp-volume-appsettings
+          readOnly: true
+          mountPath: "/usr/share/appsettings"
+        ports:
+        - name: idp-port
+          containerPort: 8000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "500m"
+            memory: "1G"
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          initialDelaySeconds: 30
+          failureThreshold: 5
+          periodSeconds: 30
+          timeoutSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          failureThreshold: 200
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8000
+          initialDelaySeconds: 30
+          failureThreshold: 5
+          periodSeconds: 30
+          timeoutSeconds: 300
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command:
+        #       - "bash"
+        #       - "-c"
+        #       - |
+        #         KB_URL=http://opensearch-dashboard-opensearch-dashboards.logging.svc.cluster.local:5601/dashboard
+        #         echo $KB_URL
+        #         while [[ "$(curl -s -o /dev/null -w '%{http_code}\n' -L $KB_URL)" != "200" ]]; do sleep 1; done
+        #         IDP=$(curl -u ${OPENSEARCH_USERNAME}:${OPENSEARCH_PASSWORD} -X GET $KB_URL/api/saved_objects/_find?type=index-pattern | sed -e 's/[{}]/''/g' | awk -v RS=',"' -F: '/^id/ {print $2}' | tr -d '"' | grep $CinchyEnvironment-idp-app)
+        #         if [ $IDP = $CinchyEnvironment-idp-app ]; then echo "Cool"; else curl -u ${OPENSEARCH_USERNAME}:${OPENSEARCH_PASSWORD} -XPOST "$KB_URL/api/index_patterns/index_pattern" -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'{"override": false,"refresh_fields": true,"index_pattern": {"title": "'"$CinchyEnvironment-idp-app"'", "timeFieldName":"@t"}}'; fi

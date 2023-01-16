@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- worker-secret-appsettings.yaml
+- worker-serviceaccount.yaml
+- worker-app.yaml
+- worker-app-hpa.yaml
+- worker-logging-opensearch.yaml
+- worker-logging-flow.yaml
