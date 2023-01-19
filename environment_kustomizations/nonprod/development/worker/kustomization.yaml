@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/worker
+namespace: development
+commonLabels:
+  app: worker
+  env: development
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: worker-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.connections.worker:v5.1.0
+- target:
+    version: v1
+    kind: Secret
+    name: worker-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: ew0KICAgICJDaW5jaHlDbGllbnRTZXR0aW5ncyI6IHsNCiAgICAgICAgIlVybCI6ICJodHRwczovLyIsDQogICAgICAgICJVc2VybmFtZSI6ICIiLA0KICAgICAgICAiUGFzc3dvcmQiOiAiIiAgDQogICAgfSwNCiAgICAiQXBwU2V0dGluZ3MiOiB7DQogICAgIk1vZGVsIjogIkNpbmNoeSIsDQogICAgIlRlbXBEaXJlY3RvcnkiOiAiL3RtcCIsDQogICAgIlRsc1ZlcnNpb24iOiAiIiwNCiAgICAiV29ya2VyVGhyZWFkQ291bnQiOiAiMTIiLA0KICAgICJXb3JrZXJCYXRjaFNpemVMaW1pdCI6ICIyMCIsDQogICAgIkthZmthQ2xpZW50Q29uZmlnIjogew0KICAgICAgIkJvb3RzdHJhcFNlcnZlcnMiOiAia2Fma2EtY2x1c3Rlci1rYWZrYS1ib290c3RyYXAua2Fma2Euc3ZjLmNsdXN0ZXIubG9jYWw6OTA5MiINCiAgICB9LA0KICAgICJLYWZrYU1lc3NhZ2VDb25zdW1lTXNMaW1pdCI6IDEwMCwNCiAgICAiS2Fma2FNZXNzYWdlQmF0Y2hDb25zdW1lTXNMaW1pdCI6IDIwMA0KICB9LA0KICAiQ29ubmVjdGlvblN0cmluZ3MiOiB7DQogICAgIlNxbFNlcnZlciI6ICIiDQogIH0sDQogICJTZXJpbG9nIjogew0KICAgICJNaW5pbXVtTGV2ZWwiOiB7DQogICAgICAiRGVmYXVsdCI6ICJEZWJ1ZyIsDQogICAgICAiT3ZlcnJpZGUiOiB7DQogICAgICAgICJNaWNyb3NvZnQiOiAiV2FybmluZyIsDQogICAgICAgICJTeXN0ZW0uTmV0IjogIldhcm5pbmciDQogICAgICB9DQogICAgfSwNCiAgICAiV3JpdGVUbyI6IFsNCiAgICAgIHsNCiAgICAgICAgIk5hbWUiOiAiQ29uc29sZSIsDQogICAgICAgICJBcmdzIjogew0KICAgICAgICAgICJmb3JtYXR0ZXIiOiAiU2VyaWxvZy5Gb3JtYXR0aW5nLkNvbXBhY3QuQ29tcGFjdEpzb25Gb3JtYXR0ZXIsIFNlcmlsb2cuRm9ybWF0dGluZy5Db21wYWN0Ig0KICAgICAgICB9DQogICAgICB9DQogICAgXQ0KICB9DQp9
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: worker-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: development-worker-app

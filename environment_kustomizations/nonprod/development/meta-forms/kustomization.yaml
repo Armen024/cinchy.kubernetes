@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/forms
+namespace: development
+commonLabels:
+  app: forms
+  env: development
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: forms-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.forms:v5.1.0
+- target:
+    version: v1
+    kind: Secret
+    name: forms-secret-config
+  patch: |-
+    - op: replace
+      path: /data/config.json
+      value: ew0KICAiYXV0aG9yaXR5IjogImh0dHBzOi8vL2lkcCIsDQogICJjaW5jaHlSb290VXJsIjogImh0dHBzOi8vIiwNCiAgImNsaWVudElkIjogImNpbmNoeV9tZXRhX2Zvcm1zIiwNCiAgInJlZGlyZWN0VXJpIjogImh0dHBzOi8vL21ldGFmb3JtcyINCn0=
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: forms-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: development-forms-app
