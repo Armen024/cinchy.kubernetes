@@ -23,7 +23,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /data/config.json
-      value: ew0KICAiYXV0aG9yaXR5IjogImh0dHBzOi8vL2lkcCIsDQogICJjaW5jaHlSb290VXJsIjogImh0dHBzOi8vIiwNCiAgImNsaWVudElkIjogImNpbmNoeV9tZXRhX2Zvcm1zIiwNCiAgInJlZGlyZWN0VXJpIjogImh0dHBzOi8vL21ldGFmb3JtcyINCn0=
+      value: ew0KICAiYXV0aG9yaXR5IjogImh0dHBzOi8vY2luY2h5Lm1lbnVjaXR5YXBwLmFtL2lkcCIsDQogICJjaW5jaHlSb290VXJsIjogImh0dHBzOi8vY2luY2h5Lm1lbnVjaXR5YXBwLmFtIiwNCiAgImNsaWVudElkIjogImNpbmNoeV9tZXRhX2Zvcm1zIiwNCiAgInJlZGlyZWN0VXJpIjogImh0dHBzOi8vY2luY2h5Lm1lbnVjaXR5YXBwLmFtL21ldGFmb3JtcyINCn0=
 - target:
     group: logging.banzaicloud.io
     version: v1beta1
