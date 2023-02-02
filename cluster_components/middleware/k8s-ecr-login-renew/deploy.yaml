@@ -7,6 +7,7 @@ metadata:
     app: ecr-renew
 spec:
   schedule: "0 */6 * * *"
+  # AWS ECR Docker credentials expire every 12 hours hence run cronjob every 6 hours
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 5
   jobTemplate:
@@ -22,7 +23,7 @@ spec:
                 - name: DOCKER_SECRET_NAME
                   value: ecr-docker-login
                 - name: TARGET_NAMESPACE
-                  value: ns-ecr-renew,development,qa1,qa2,staging
+                  value: ns-ecr-renew,development
                 - name: AWS_REGION
                   valueFrom:
                     secretKeyRef:

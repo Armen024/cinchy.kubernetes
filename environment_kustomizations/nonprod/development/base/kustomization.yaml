@@ -1,0 +1,130 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/base
+namespace: development
+commonLabels:
+  app: base
+  env: development
+patchesJson6902:
+- target:
+    version: v1
+    kind: Secret
+    name: cinchy-environment-settings
+  patch: |-
+    - op: replace
+      path: /data/encryptionkey
+      value: N0VBRUFGQkUxMTJGMDE2QTk4MjFBQjg3NjZEQkU3QkE5NjJFMTNBN0ZDRkNGN0U4QzVFMkM4QTgwMTY5MDg2Mg==
+    - op: replace
+      path: /data/url
+      value: aHR0cHM6Ly8=
+    - op: replace
+      path: /data/connectionspassword
+      value: JHJIMjR4RHB3eU16
+    - op: replace
+      path: /data/workerpassword
+      value: JHJIMzR4RnB3eU16
+    - op: replace
+      path: /data/eventlistenerpassword
+      value: JHJINjR4UnB3eU16
+    - op: replace
+      path: /data/maintenancepassword
+      value: JHJINTV4WnB3eU16
+- target:
+    version: v1
+    kind: Namespace
+    name: <ns>
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: development
+- target:
+    version: "security.istio.io/v1beta1"
+    kind: "PeerAuthentication"
+    name: "ns-peerauthentication"
+  patch: |-
+    - op: replace
+      path: /metadata/namespace
+      value: development
+- target:
+    version: "v1"
+    kind: "Secret"
+    name: "opensearch-credentials"
+  patch: |-
+     - op: replace
+       path: /data/password
+       value: cGFzc3dvcmQ=
+- target:
+    group: networking.istio.io
+    version: v1alpha3
+    kind: VirtualService
+    name: cinchy-virtualservice
+  patch: |-
+    - op: replace
+      path: /spec/hosts/0
+      value: ""
+
+    - op: replace
+      path: /spec/http/0/route/0/destination/host
+      value: "connections-service.development.svc.cluster.local"
+    - op: replace
+      path: /spec/http/0/rewrite/uri
+      value: "/"
+    - op: replace
+      path: /spec/http/0/match/0/uri/prefix
+      value: "/connections/"
+    - op: replace
+      path: /spec/http/0/match/1/uri/prefix
+      value: "/connections"
+
+    - op: replace
+      path: /spec/http/1/route/0/destination/host
+      value: "event-listener-service.development.svc.cluster.local"
+    - op: replace
+      path: /spec/http/1/rewrite/uri
+      value: "/"
+    - op: replace
+      path: /spec/http/1/match/0/uri/prefix
+      value: "/event-listener/"
+    - op: replace
+      path: /spec/http/1/match/1/uri/prefix
+      value: "/event-listener"
+
+    - op: replace
+      path: /spec/http/2/route/0/destination/host
+      value: "forms-service.development.svc.cluster.local"
+    - op: replace
+      path: /spec/http/2/rewrite/uri
+      value: "/"
+    - op: replace
+      path: /spec/http/2/match/0/uri/prefix
+      value: "/metaforms/"
+    - op: replace
+      path: /spec/http/2/match/1/uri/prefix
+      value: "/metaforms"
+
+    - op: replace
+      path: /spec/http/3/route/0/destination/host
+      value: "idp-service.development.svc.cluster.local"
+    - op: replace
+      path: /spec/http/3/rewrite/uri
+      value: "/"
+    - op: replace
+      path: /spec/http/3/match/0/uri/prefix
+      value: "/idp/"
+    - op: replace
+      path: /spec/http/3/match/1/uri/prefix
+      value: "/idp"
+
+    - op: replace
+      path: /spec/http/4/route/0/destination/host
+      value: "web-service.development.svc.cluster.local"
+    - op: replace
+      path: /spec/http/4/rewrite/uri
+      value: "/"
+    - op: replace
+      path: /spec/http/4/match/0/uri/prefix
+      value: "/"
+    - op: replace
+      path: /spec/http/4/match/1/uri/prefix
+      value: ""

@@ -28,15 +28,15 @@ patchesJson6902:
         name: idp-volume-redis-password
         readOnly: true
         mountPath: "/usr/share/redis/redis-redis-cluster"
-    - op: replace
-      path: /spec/template/spec/volumes/0
-      value:
-        name: idp-volume-appsettings
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "idp-secret-appsettings"
+#    - op: replace
+#      path: /spec/template/spec/volumes/0
+#      value:
+#        name: idp-volume-appsettings
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "idp-secret-appsettings"
 - target:
     group: secrets-store.csi.x-k8s.io
     version: v1

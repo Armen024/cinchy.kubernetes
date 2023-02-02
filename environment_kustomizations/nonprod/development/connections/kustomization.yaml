@@ -2,10 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ../../../../platform_components/connections
-namespace: <<namespace>>
+namespace: development
 commonLabels:
   app: connections
-  env: <<namespace>>
+  env: development
 patchesJson6902:
 - target:
     group: apps
@@ -15,7 +15,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/template/spec/containers/0/image
-      value: <<connections_image_repo_uri>>:<<connections_image_tag>>
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.connections.webapi:v5.4.0
     - op: add
       path: /spec/template/spec/volumes/-
       value: 
@@ -56,7 +56,7 @@ patchesJson6902:
       path: /spec/parameters
       value: 
         objects:  |
-          - objectName: "connections-secret-appsettings-<<namespace>>"
+          - objectName: "connections-secret-appsettings-development"
             objectType: "secretsmanager"
             jmesPath:
             - path: connectionssecretappsettings
@@ -71,7 +71,7 @@ patchesJson6902:
       path: /spec/parameters
       value: 
         objects:  |
-          - objectName: "connections-secret-config-<<namespace>>"
+          - objectName: "connections-secret-config-development"
             objectType: "secretsmanager"
             jmesPath:
             - path: connectionssecretconfig
@@ -83,7 +83,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /data/appsettings.json
-      value: <<connections_appsettings_json>>
+      value: ewogICJDaW5jaHlDbGllbnRTZXR0aW5ncyI6IHsKICAgICJVcmwiOiAiaHR0cHM6Ly8iLAogICAgIlVzZXJuYW1lIjogIiIsCiAgICAiUGFzc3dvcmQiOiAiIiAgCiAgfSwKICAiQXBwU2V0dGluZ3MiOiB7CiAgICAiVGVtcERpcmVjdG9yeSI6ICIvYXBwL3RtcCIsCiAgICAiTW9kZWwiOiAiQ2luY2h5IiwKICAgICJLYWZrYUNsaWVudENvbmZpZyI6IHsKICAgICAgIkJvb3RzdHJhcFNlcnZlcnMiOiAia2Fma2EtY2x1c3Rlci1rYWZrYS1ib290c3RyYXAua2Fma2Euc3ZjLmNsdXN0ZXIubG9jYWw6OTA5MiIKICAgIH0sCiAgICAiS2Fma2FDb25zdW1lclRocmVhZENvdW50IjogIjIiLAogICAgIkthZmthTWVzc2FnZUNvbnN1bWVNc0xpbWl0IjogMTAwLAogICAgIkthZmthTWVzc2FnZUJhdGNoQ29uc3VtZU1zTGltaXQiOiAyMDAsCiAgICAiU3RvcmFnZVR5cGUiOiAiQXp1cmVCbG9iU3RvcmFnZSIsCiAgICAiQmFzZVBhdGhPdmVycmlkZSI6ICIiCiAgfSwKICAiQ29ubmVjdGlvblN0cmluZ3MiOiB7CiAgICAiUmVkaXMiOiAicmVkaXMtcmVkaXMtY2x1c3Rlci5yZWRpcy5zdmMuY2x1c3Rlci5sb2NhbDo2Mzc5IgogIH0sCiAgIkF6dXJlQmxvYlN0b3JhZ2VTZXR0aW5ncyI6IHsKICAgICJDb25uZWN0aW9uU3RyaW5nIjogIkRlZmF1bHRFbmRwb2ludHNQcm90b2NvbD1odHRwcztBY2NvdW50TmFtZT1hY3VtZW5jaW5jaHlub25wcm9kO0FjY291bnRLZXk9WE4zOE5tVzJHaktaTTJOZTkzTHN4K1lWR2g0SlFaaHJkZW9kckdjUmRsMGJwNzVtbG05RGkzZHZVWXhXN3ZDb1VoTW9mMlVIQmlTTCtBU3Q3MHFzZUE9PTtFbmRwb2ludFN1ZmZpeD1jb3JlLndpbmRvd3MubmV0IiwKICAgICJDb250YWluZXIiOiAibm9ucHJvZC1jb25uZWN0aW9ucyIsCiAgICAiQmFzZVBhdGgiOiAiZGV2ZWxvcG1lbnQvY2luY2h5Y29ubmVjdGlvbnMiCiAgfSwKICAiUzNTZXR0aW5ncyI6IHsKICAgICJBY2Nlc3NLZXkiOiAiPDxjaW5jaHlfczNfYWNjZXNzX2tleT4+IiwKICAgICJTZWNyZXRBY2Nlc3NLZXkiOiAiPDxjaW5jaHlfczNfc2VjcmV0X2FjY2Vzc19rZXk+PiIsCiAgICAiUmVnaW9uIjogIjw8YXdzX3JlZ2lvbj4+IiwKICAgICJCdWNrZXQiOiAiPDxjaW5jaHlfczNfYnVja2V0Pj4iLAogICAgIkJhc2VQYXRoIjogImRldmVsb3BtZW50L2NpbmNoeWNvbm5lY3Rpb25zIiwKICAgICJTZXJ2aWNlVVJMIjogIjw8Y2luY2h5X3MzX3NlcnZpY2VfdXJsPj4iCiAgfSwKICAiQWxsb3dlZEhvc3RzIjogIioiLAogICJTZXJpbG9nIjogewogICAgIk1pbmltdW1MZXZlbCI6IHsKICAgICAgIkRlZmF1bHQiOiAiVmVyYm9zZSIsCiAgICAgICJPdmVycmlkZSI6IHsKICAgICAgICAiTWljcm9zb2Z0IjogIlZlcmJvc2UiLAogICAgICAgICJTeXN0ZW0uTmV0IjogIlZlcmJvc2UiCiAgICAgIH0KICAgIH0sCiAgICAiV3JpdGVUbyI6IFsKICAgICAgewogICAgICAgICJOYW1lIjogIkNvbnNvbGUiLAogICAgICAgICJBcmdzIjogewogICAgICAgICAgImZvcm1hdHRlciI6ICJTZXJpbG9nLkZvcm1hdHRpbmcuQ29tcGFjdC5Db21wYWN0SnNvbkZvcm1hdHRlciwgU2VyaWxvZy5Gb3JtYXR0aW5nLkNvbXBhY3QiCiAgICAgICAgfQogICAgICB9CiAgICBdCiAgfQp9Cg==
 - target:
     version: v1
     kind: Secret
@@ -91,7 +91,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /data/config.json
-      value: <<connections_config_json>>
+      value: ewogICAgImF1dGhvcml0eSI6ICJodHRwczovLy9pZHAiLAogICAgImNpbmNoeVJvb3RVcmwiOiAiaHR0cHM6Ly8iLAogICAgImNsaWVudElkIjogImNpbmNoeV9jb25uZWN0aW9uc19leHBlcmllbmNlIiwKICAgICJyZWRpcmVjdFVyaSI6ICJodHRwczovLy9jb25uZWN0aW9ucyIsCiAgICAic2lsZW50UmVmcmVzaFJlZGlyZWN0VXJpIjogIi9jb25uZWN0aW9ucy9zaWxlbnQtcmVmcmVzaC5odG1sIiwKICAgICJzaWxlbnRSZWZyZXNoRW5hYmxlZCI6IHRydWUsCiAgICAibW9kZWwiOiAiQ2luY2h5IiwKICAgICJkb21haW4iOiAiQ2luY2h5IiwKICAgICJ1c2VIdHRwcyI6IHRydWUsCiAgICAic2VydmVyIjogIiIsCiAgICAidmVyc2lvbiI6ICIxLjAuMCIKfQ==
 - target:
     group: logging.banzaicloud.io
     version: v1beta1
@@ -100,7 +100,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/elasticsearch/index_name
-      value: <<namespace>>-connections-app
+      value: development-connections-app
 - target:
     group: kafka.strimzi.io
     version: v1beta2
@@ -109,7 +109,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /metadata/name
-      value: <<namespace>>-connectionsjobcancellationrequests
+      value: development-connectionsjobcancellationrequests
     - op: replace
       path: /metadata/namespace
       value: kafka
@@ -121,7 +121,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /metadata/name
-      value: <<namespace>>-connectionsjobqueue
+      value: development-connectionsjobqueue
     - op: replace
       path: /metadata/namespace
       value: kafka
@@ -133,4 +133,4 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/trafficPolicy/loadBalancer/consistentHash/httpCookie/name
-      value: <<namespace>>-connections-canary
+      value: development-connections-canary

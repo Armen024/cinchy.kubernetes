@@ -28,15 +28,15 @@ patchesJson6902:
         name: web-volume-redis-password
         readOnly: true
         mountPath: "/usr/share/redis/redis-redis-cluster"
-    - op: replace
-      path: /spec/template/spec/volumes/0
-      value:
-        name: web-volume-appsettings
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "web-secret-appsettings"
+#    - op: replace
+#      path: /spec/template/spec/volumes/0
+#      value:
+#        name: web-volume-appsettings
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "web-secret-appsettings"
 - target:
     group: secrets-store.csi.x-k8s.io
     version: v1

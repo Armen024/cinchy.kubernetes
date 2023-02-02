@@ -2,10 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
 - ../../../../platform_components/forms
-namespace: <<namespace>>
+namespace: development
 commonLabels:
   app: forms
-  env: <<namespace>>
+  env: development
 patchesJson6902:
 - target:
     group: apps
@@ -15,7 +15,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/template/spec/containers/0/image
-      value: <<meta_forms_image_repo_uri>>:<<meta_forms_image_tag>>
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.forms:v5.4.0
 #    - op: replace
 #      path: /spec/template/spec/volumes/0
 #      value:
@@ -35,7 +35,7 @@ patchesJson6902:
       path: /spec/parameters
       value: 
         objects:  |
-          - objectName: "forms-secret-config-<<namespace>>"
+          - objectName: "forms-secret-config-development"
             objectType: "secretsmanager"
             jmesPath:
             - path: formssecretconfig
@@ -47,7 +47,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /data/config.json
-      value: <<meta_forms_config_json>>
+      value: ewogICJhdXRob3JpdHkiOiAiaHR0cHM6Ly8vaWRwIiwKICAiY2luY2h5Um9vdFVybCI6ICJodHRwczovLyIsCiAgImNsaWVudElkIjogImNpbmNoeV9tZXRhX2Zvcm1zIiwKICAicmVkaXJlY3RVcmkiOiAiaHR0cHM6Ly8vbWV0YWZvcm1zIgp9
 - target:
     group: logging.banzaicloud.io
     version: v1beta1
@@ -56,4 +56,4 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/elasticsearch/index_name
-      value: <<namespace>>-forms-app
+      value: development-forms-app

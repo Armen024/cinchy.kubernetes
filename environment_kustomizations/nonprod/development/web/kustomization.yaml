@@ -1,0 +1,92 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/web
+namespace: development
+commonLabels:
+  app: web
+  env: development
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: web-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.web:v5.4.0
+    - op: add
+      path: /spec/template/spec/volumes/-
+      value: 
+        name: web-volume-redis-password
+        secret:
+          secretName: redis-redis-cluster
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value: 
+        name: web-volume-redis-password
+        readOnly: true
+        mountPath: "/usr/share/redis/redis-redis-cluster"
+#    - op: replace
+#      path: /spec/template/spec/volumes/0
+#      value:
+#        name: web-volume-appsettings
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "web-secret-appsettings"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: web-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "web-secret-appsettings-development"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: websecretappsettings
+              objectAlias: appsettings.json
+- target:
+    version: v1
+    kind: Secret
+    name: web-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: ewogICJDb25maWdTZXR0aW5ncyI6IHsKICAgICJBcHBTZXR0aW5ncyI6IHsKICAgICAgIlN0c0F1dGhvcml0eVVyaSI6ICJodHRwczovLy9pZHAiLAogICAgICAiQWxsb3dMb2dGaWxlRG93bmxvYWQiOiBmYWxzZSwKICAgICAgIkxvZ0RpcmVjdG9yeVBhdGgiOiAiIiwKICAgICAgIlNTT0xvZ1BhdGgiOiAiIiwKICAgICAgIlVzZUh0dHBzIjogdHJ1ZSwKICAgICAgIkhzdHNNYXhBZ2UiOiAyNTkyMDAwLAogICAgICAiSHN0c0luY2x1ZGVTdWJEb21haW5zIjogZmFsc2UsCiAgICAgICJIc3RzUHJlbG9hZCI6IGZhbHNlLAogICAgICAiVGxzVmVyc2lvbiI6ICIxLjIiLAogICAgICAiUm91dGVEZWJ1Z2dlckVuYWJsZWQiOiBmYWxzZSwKICAgICAgIlJlZnJlc2hDYWNoZVRpbWVJbk1pbiI6IDEwLAogICAgICAiRGVmYXVsdEV4cGlyYXRpb25DYWNoZVRpbWVJbk1pbiI6IDM2MCwKICAgICAgIkRCVHlwZSI6ICJUU1FMIiwKICAgICAgIlN0b3JhZ2VUeXBlIjogIkF6dXJlQmxvYlN0b3JhZ2UiLAogICAgICAiTWF4UmVxdWVzdEJvZHlTaXplIiA6IDw8d2ViX21heF9yZXF1ZXN0X2JvZHlfc2l6ZT4+CiAgICB9LAogICAgIlJldmVyc2VQcm94eVNldHRpbmdzIjogewogICAgICAiSXNFbmFibGVkIjogdHJ1ZSwKICAgICAgIkJhc2VQYXRoIjogIiIsCiAgICAgICJVc2VIdHRwcyI6IHRydWUKICAgIH0sCiAgICAiQ29ubmVjdGlvblN0cmluZ3MiOiB7CiAgICAgICJTcWxTZXJ2ZXIiOiAiU2VydmVyPXRjcDpub25wcm9kc3FsYWN1bWVuLXByaW1hcnkuZGF0YWJhc2Uud2luZG93cy5uZXQsMTQzMztJbml0aWFsIENhdGFsb2c9ZGV2ZWxvcG1lbnQ7UGVyc2lzdCBTZWN1cml0eSBJbmZvPUZhbHNlO1VzZXIgSUQ9c3FsYWRtaW47UGFzc3dvcmQ9QTFzMmQzZjQjO011bHRpcGxlQWN0aXZlUmVzdWx0U2V0cz1GYWxzZTtFbmNyeXB0PVRydWU7VHJ1c3RTZXJ2ZXJDZXJ0aWZpY2F0ZT1GYWxzZTtDb25uZWN0aW9uIFRpbWVvdXQ9MzA7IiwKICAgICAgIlJlZGlzIjogInJlZGlzLXJlZGlzLWNsdXN0ZXIucmVkaXMuc3ZjLmNsdXN0ZXIubG9jYWw6NjM3OSIKICAgIH0sCiAgICAiQXp1cmVCbG9iU3RvcmFnZVNldHRpbmdzIjogewogICAgICAiQ29ubmVjdGlvblN0cmluZyI6ICJEZWZhdWx0RW5kcG9pbnRzUHJvdG9jb2w9aHR0cHM7QWNjb3VudE5hbWU9YWN1bWVuY2luY2h5bm9ucHJvZDtBY2NvdW50S2V5PVhOMzhObVcyR2pLWk0yTmU5M0xzeCtZVkdoNEpRWmhyZGVvZHJHY1JkbDBicDc1bWxtOURpM2R2VVl4Vzd2Q29VaE1vZjJVSEJpU0wrQVN0NzBxc2VBPT07RW5kcG9pbnRTdWZmaXg9Y29yZS53aW5kb3dzLm5ldCIsCiAgICAgICJDb250YWluZXIiOiAiPDx3ZWJfc3RvcmFnZV9jb250YWluZXJfbmFtZT4+IiwKICAgICAgIkJhc2VQYXRoIjogImRldmVsb3BtZW50L2NpbmNoeXdlYiIKICAgIH0sCiAgICAiUzNTZXR0aW5ncyI6IHsKICAgICAgIkFjY2Vzc0tleSI6ICI8PGNpbmNoeV9zM19hY2Nlc3Nfa2V5Pj4iLAogICAgICAiU2VjcmV0QWNjZXNzS2V5IjogIjw8Y2luY2h5X3MzX3NlY3JldF9hY2Nlc3Nfa2V5Pj4iLAogICAgICAiUmVnaW9uIjogIjw8YXdzX3JlZ2lvbj4+IiwKICAgICAgIkJ1Y2tldCI6ICI8PGNpbmNoeV9zM19idWNrZXQ+PiIsCiAgICAgICJCYXNlUGF0aCI6ICJkZXZlbG9wbWVudC9jaW5jaHl3ZWIiLAogICAgICAiU2VydmljZVVSTCI6ICI8PGNpbmNoeV9zM19zZXJ2aWNlX3VybD4+IgogICAgfSwKICAgICJDbHVzdGVyQ29tbXVuaWNhdGlvblNldHRpbmdzIjogewogICAgICAiVXNlS2Fma2EiOiB0cnVlLAogICAgICAiS2Fma2FDYWNoZVRvcGljIjogIiIsCiAgICAgICJLYWZrYUNsaWVudENvbmZpZyI6IHsKICAgICAgICAiQm9vdHN0cmFwU2VydmVycyI6ICJrYWZrYS1jbHVzdGVyLWthZmthLWJvb3RzdHJhcC5rYWZrYS5zdmMuY2x1c3Rlci5sb2NhbDo5MDkyIgogICAgICB9LAogICAgICAiQ2x1c3RlcklwQWRkcmVzc2VzIjogIiIsCiAgICAgICJDbHVzdGVyQ29tbXVuaWNhdGlvblByb3RvY29sIjogImh0dHAiLAogICAgICAiQ2x1c3RlckNvbW11bmljYXRpb25CYXNlVXJsIjogIntQUk9UT0NPTH06Ly97SVBBRERSRVNTfS9DaW5jaHkiCiAgICB9CiAgfSwKICAiTG9nZ2luZyI6IHsKICAgICJNaW5pbXVtTGV2ZWwiOiB7CiAgICAgICJEZWZhdWx0IjogIkRlYnVnIiwKICAgICAgIk92ZXJyaWRlIjogewoJCSAgICAiTWljcm9zb2Z0IjogIldhcm5pbmciLAoJCSAgICAiTWljcm9zb2Z0Lkhvc3RpbmcuTGlmZXRpbWUiOiAiSW5mb3JtYXRpb24iLAogICAgICAgICJDaW5jaHkuV2ViLkF1dGhlbnRpY2F0aW9uLkhhbmRsZXJzLkFub255bW91c0F1dGhlbnRpY2F0aW9uSGFuZGxlciI6ICJJbmZvcm1hdGlvbiIKCSAgICB9CiAgICB9CiAgfSwKICAiU2VyaWxvZyI6IHsKICAgICJNaW5pbXVtTGV2ZWwiOiB7CiAgICAgICJEZWZhdWx0IjogIkRlYnVnIiwKCSAgICAiT3ZlcnJpZGUiOiB7CgkJICAgICJNaWNyb3NvZnQiOiAiV2FybmluZyIsCgkJICAgICJNaWNyb3NvZnQuSG9zdGluZy5MaWZldGltZSI6ICJJbmZvcm1hdGlvbiIsCiAgICAgICAgIkNpbmNoeS5XZWIuQXV0aGVudGljYXRpb24uSGFuZGxlcnMuQW5vbnltb3VzQXV0aGVudGljYXRpb25IYW5kbGVyIjogIkluZm9ybWF0aW9uIgoJICAgIH0KICAgIH0sCiAgICAiV3JpdGVUbyI6IFsKICAgICAgewogICAgICAgICJOYW1lIjogIkNvbnNvbGUiLAogICAgICAgICJBcmdzIjogewogICAgICAgICAgImZvcm1hdHRlciI6ICJTZXJpbG9nLkZvcm1hdHRpbmcuQ29tcGFjdC5Db21wYWN0SnNvbkZvcm1hdHRlciwgU2VyaWxvZy5Gb3JtYXR0aW5nLkNvbXBhY3QiCiAgICAgICAgfQogICAgICB9CiAgICBdCiAgfSwKICAiQWxsb3dlZEhvc3RzIjogIioiCn0=
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: web-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: development-web-app
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-datachangenotifications
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: development-datachangenotifications
+    - op: replace
+      path: /metadata/namespace
+      value: kafka
+- target:
+    group: networking.istio.io
+    version: v1alpha3
+    kind: DestinationRule
+    name: web-destinationrule
+  patch: |-
+    - op: replace
+      path: /spec/trafficPolicy/loadBalancer/consistentHash/httpCookie/name
+      value: development-web-canary
