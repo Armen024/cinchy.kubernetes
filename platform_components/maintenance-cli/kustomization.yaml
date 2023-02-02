@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - maintenance-cli-serviceaccount.yaml
 - maintenance-cli-secret-appsettings.yaml
+# - maintenance-cli-aws-secretmanager-appsettings.yaml
 - maintenance-cli-job.yaml
 - maintenance-cli-logging-flow.yaml
 - maintenance-cli-logging-opensearch.yaml

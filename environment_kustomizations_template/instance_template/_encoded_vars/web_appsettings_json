@@ -14,7 +14,8 @@
       "RefreshCacheTimeInMin": 10,
       "DefaultExpirationCacheTimeInMin": 360,
       "DBType": "<<dbtype>>",
-      "StorageType": "<<web_storage_type>>"
+      "StorageType": "<<web_storage_type>>",
+      "MaxRequestBodySize" : <<web_max_request_body_size>>
     },
     "ReverseProxySettings": {
       "IsEnabled": true,
@@ -26,17 +27,17 @@
       "Redis": "redis-redis-cluster.redis.svc.cluster.local:6379"
     },
     "AzureBlobStorageSettings": {
-      "ConnectionString": "<<web_azure_blob_storage_conn_str>>",
+      "ConnectionString": "<<azure_blob_storage_conn_str>>",
       "Container": "<<web_storage_container_name>>",
-      "BasePath": "<<web_storage_basepath>>"
+      "BasePath": "<<instance_name>>/<<web_storage_basepath>>"
     },
     "S3Settings": {
-      "AccessKey": "<<web_s3_access_key>>",
-      "SecretAccessKey": "<<web_s3_secret_access_key>>",
+      "AccessKey": "<<cinchy_s3_access_key>>",
+      "SecretAccessKey": "<<cinchy_s3_secret_access_key>>",
       "Region": "<<aws_region>>",
-      "Bucket": "<<cinchy_web_s3_bucket>>",
-      "BasePath": "<<web_storage_basepath>>",
-      "ServiceURL": "<<web_s3_service_url>>"
+      "Bucket": "<<cinchy_s3_bucket>>",
+      "BasePath": "<<instance_name>>/<<web_storage_basepath>>",
+      "ServiceURL": "<<cinchy_s3_service_url>>"
     },
     "ClusterCommunicationSettings": {
       "UseKafka": true,
@@ -53,18 +54,20 @@
     "MinimumLevel": {
       "Default": "Debug",
       "Override": {
-		"Microsoft": "Warning",
-		"Microsoft.Hosting.Lifetime": "Information"
-	  }
+		    "Microsoft": "Warning",
+		    "Microsoft.Hosting.Lifetime": "Information",
+        "Cinchy.Web.Authentication.Handlers.AnonymousAuthenticationHandler": "Information"
+	    }
     }
   },
   "Serilog": {
     "MinimumLevel": {
       "Default": "Debug",
-	  "Override": {
-		"Microsoft": "Warning",
-		"Microsoft.Hosting.Lifetime": "Information"
-	  }
+	    "Override": {
+		    "Microsoft": "Warning",
+		    "Microsoft.Hosting.Lifetime": "Information",
+        "Cinchy.Web.Authentication.Handlers.AnonymousAuthenticationHandler": "Information"
+	    }
     },
     "WriteTo": [
       {

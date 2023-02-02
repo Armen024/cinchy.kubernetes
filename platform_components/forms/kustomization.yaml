@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - forms-secret-config.yaml
 - forms-serviceaccount.yaml
+# - forms-aws-secretmanager-appsettings.yaml
 - forms-app.yaml
 - forms-service.yaml
 - forms-logging-flow.yaml

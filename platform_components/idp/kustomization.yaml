@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - idp-secret-appsettings.yaml
 - idp-serviceaccount.yaml
+# - idp-aws-secretmanager-appsettings.yaml
 - idp-app.yaml
 - idp-service.yaml
 - idp-logging-flow.yaml

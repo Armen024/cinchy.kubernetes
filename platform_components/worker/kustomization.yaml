@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
 - worker-secret-appsettings.yaml
 - worker-serviceaccount.yaml
+# - worker-aws-secretmanager-appsettings.yaml
 - worker-app.yaml
 - worker-app-hpa.yaml
 - worker-logging-opensearch.yaml

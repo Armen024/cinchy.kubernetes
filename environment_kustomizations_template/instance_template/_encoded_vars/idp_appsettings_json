@@ -20,7 +20,7 @@
       "MachineKeyXml": "",
       "DpApiKeyRingPath": "",
       "TlsVersion": "1.2",
-      "CinchyAccessTokenLifetime": "0.00:30:00",
+      "CinchyAccessTokenLifetime": "<<cinchy_session_timeout>>",
       "DataChangeCallbackTimeout": 7,
       "RefreshCacheTimeInMin": 10,
       "DefaultExpirationCacheTimeInMin": 360,

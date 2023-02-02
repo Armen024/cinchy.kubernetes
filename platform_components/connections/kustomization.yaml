@@ -4,6 +4,8 @@ resources:
 - connections-job-start-queue-kafka-topic.yaml
 - connections-job-cancel-queue-kafka-topic.yaml
 - connections-secret-appsettings.yaml
+# - connections-aws-secretmanager-appsettings.yaml
+# - connections-aws-secretmanager-config.yaml
 - connections-secret-config.yaml
 - connections-persistent-volume-claim.yaml
 - connections-serviceaccount.yaml

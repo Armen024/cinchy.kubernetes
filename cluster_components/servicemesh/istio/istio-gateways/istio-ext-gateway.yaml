@@ -6,14 +6,8 @@ metadata:
 spec:
   selector:
     app: istio-ingressgateway
-    istio: ingressgateway
+    istio: ingressgateway 
   servers:
-  - port:
-     number: 80
-     name: http
-     protocol: HTTP
-    hosts:
-    - "localhost/cinchyAzure"
   - port:
      number: 443
      name: https
@@ -21,6 +15,5 @@ spec:
     tls:
       mode: SIMPLE
       credentialName: ssl-cert-secret
-      minProtocolVersion: TLSV1_2
     hosts:
-    - "localhost/cinchyAzure"
+    - ""

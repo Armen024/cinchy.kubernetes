@@ -3,6 +3,8 @@
     "cinchyRootUrl": "<<protocol>>://<<host_name>><<application_path>>",
     "clientId": "cinchy_connections_experience",
     "redirectUri": "<<protocol>>://<<host_name>><<application_path>>/connections",
+    "silentRefreshRedirectUri": "<<host_name>><<application_path>>/connections/silent-refresh.html",
+    "silentRefreshEnabled": true,
     "model": "Cinchy",
     "domain": "Cinchy",
     "useHttps": <<use_https_flag>>,

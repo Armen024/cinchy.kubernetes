@@ -635,7 +635,7 @@ grafana:
   ##
   defaultDashboardsEnabled: true
 
-  adminPassword: prom-operator
+  adminPassword: <<grafana_password>>
 
   # annotations:
   #       config.linkerd.io/proxy-cpu-limit: "100m"

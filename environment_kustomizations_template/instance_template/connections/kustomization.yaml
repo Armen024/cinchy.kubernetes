@@ -28,6 +28,54 @@ patchesJson6902:
         name: connections-volume-redis-password
         readOnly: true
         mountPath: "/usr/share/redis/redis-redis-cluster"
+    - op: replace
+      path: /spec/template/spec/volumes/0
+      value:
+        name: connections-volume-appsettings
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "connections-secret-appsettings"
+    - op: replace
+      path: /spec/template/spec/volumes/1
+      value:
+        name: connections-volume-config
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "connections-secret-config"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: connections-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "connections-secret-appsettings-<<namespace>>"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: connectionssecretappsettings
+              objectAlias: appsettings.json
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: connections-secret-config
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "connections-secret-config-<<namespace>>"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: connectionssecretconfig
+              objectAlias: config.json
 - target:
     version: v1
     kind: Secret

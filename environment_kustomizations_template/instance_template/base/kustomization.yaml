@@ -47,6 +47,14 @@ patchesJson6902:
       path: /metadata/namespace
       value: <<namespace>>
 - target:
+    version: "v1"
+    kind: "Secret"
+    name: "opensearch-credentials"
+  patch: |-
+     - op: replace
+       path: /data/password
+       value: <<opensearch_admin_user_password_base64>>
+- target:
     group: networking.istio.io
     version: v1alpha3
     kind: VirtualService

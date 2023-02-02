@@ -37,6 +37,30 @@ patchesJson6902:
         name: event-listener-volume-redis-password
         readOnly: true
         mountPath: "/usr/share/redis/redis-redis-cluster"
+    - op: replace
+      path: /spec/template/spec/volumes/0
+      value:
+        name: event-listener-volume-appsettings
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "event-listener-secret-appsettings"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: event-listener-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "event-listener-secret-appsettings-<<namespace>>"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: eventlistenersecretappsettings
+              objectAlias: appsettings.json
 - target:
     version: v1
     kind: Secret

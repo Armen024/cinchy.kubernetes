@@ -4,6 +4,7 @@ resources:
 - web-kafka-topic.yaml
 - web-secret-appsettings.yaml
 - web-serviceaccount.yaml
+# - web-aws-secretmanager-appsettings.yaml
 - web-app.yaml
 - web-service.yaml
 - web-logging-flow.yaml

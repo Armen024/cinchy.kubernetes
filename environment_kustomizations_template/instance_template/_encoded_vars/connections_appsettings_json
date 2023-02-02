@@ -20,17 +20,17 @@
     "Redis": "redis-redis-cluster.redis.svc.cluster.local:6379"
   },
   "AzureBlobStorageSettings": {
-    "ConnectionString": "<<connections_azure_blob_storage_conn_str>>",
+    "ConnectionString": "<<azure_blob_storage_conn_str>>",
     "Container": "<<connections_storage_container_name>>",
-    "BasePath": "<<connections_storage_basepath>>"
+    "BasePath": "<<instance_name>>/<<connections_storage_basepath>>"
   },
   "S3Settings": {
-    "AccessKey": "<<connections_s3_access_key>>",
-    "SecretAccessKey": "<<connections_s3_secret_access_key>>",
+    "AccessKey": "<<cinchy_s3_access_key>>",
+    "SecretAccessKey": "<<cinchy_s3_secret_access_key>>",
     "Region": "<<aws_region>>",
-    "Bucket": "<<cinchy_connections_s3_bucket>>",
-    "BasePath": "<<connections_storage_basepath>>",
-    "ServiceURL": "<<connections_s3_service_url>>"
+    "Bucket": "<<cinchy_s3_bucket>>",
+    "BasePath": "<<instance_name>>/<<connections_storage_basepath>>",
+    "ServiceURL": "<<cinchy_s3_service_url>>"
   },
   "AllowedHosts": "*",
   "Serilog": {

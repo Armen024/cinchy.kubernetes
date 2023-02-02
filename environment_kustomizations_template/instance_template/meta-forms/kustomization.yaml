@@ -16,6 +16,30 @@ patchesJson6902:
     - op: replace
       path: /spec/template/spec/containers/0/image
       value: <<meta_forms_image_repo_uri>>:<<meta_forms_image_tag>>
+    - op: replace
+      path: /spec/template/spec/volumes/0
+      value:
+        name: forms-volume-config
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "forms-secret-config"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: forms-secret-config
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "forms-secret-config-<<namespace>>"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: formssecretconfig
+              objectAlias: appsettings.json
 - target:
     version: v1
     kind: Secret

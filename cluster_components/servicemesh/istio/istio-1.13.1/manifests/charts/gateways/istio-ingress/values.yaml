@@ -46,8 +46,12 @@ gateways:
 
     loadBalancerIP: ""
     loadBalancerSourceRanges: []
-    serviceAnnotations: 
-      service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    serviceAnnotations: {}
+
+    # To generate an internal load balancer:
+    # --set serviceAnnotations.cloud.google.com/load-balancer-type=internal
+    #serviceAnnotations:
+    #    cloud.google.com/load-balancer-type: "internal"
 
     podAnnotations: {}
     type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be
