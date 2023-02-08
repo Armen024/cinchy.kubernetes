@@ -667,7 +667,7 @@ grafana:
     grafana_net:
       url: https://grafana.net
     server:
-      domain: 
+      domain: 20.124.77.161
       root_url: "%(protocol)s://%(domain)s/grafana"
       serve_from_sub_path: true
 

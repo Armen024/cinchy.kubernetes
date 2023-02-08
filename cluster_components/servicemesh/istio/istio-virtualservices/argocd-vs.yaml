@@ -8,7 +8,7 @@ spec:
   gateways:
   - istio-system/ext-gateway
   hosts:
-  - ""
+  - "20.124.77.161"
   http:
   - name: argocd-dashboard
     match:
