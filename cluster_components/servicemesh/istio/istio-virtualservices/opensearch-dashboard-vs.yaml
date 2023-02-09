@@ -7,7 +7,7 @@ spec:
   gateways:
   - istio-system/ext-gateway
   hosts:
-  - "20.119.115.169"
+  - "20.124.77.161"
   http:
   - name: opensearch-dashboard
     match:
