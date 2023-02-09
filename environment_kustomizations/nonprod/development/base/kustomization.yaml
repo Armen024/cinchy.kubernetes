@@ -17,7 +17,7 @@ patchesJson6902:
       value: N0VBRUFGQkUxMTJGMDE2QTk4MjFBQjg3NjZEQkU3QkE5NjJFMTNBN0ZDRkNGN0U4QzVFMkM4QTgwMTY5MDg2Mg==
     - op: replace
       path: /data/url
-      value: aHR0cDovLzIwLjEyNC43Ny4xNjE=
+      value: aHR0cDovLzIwLjExOS4xMTUuMTY5
     - op: replace
       path: /data/connectionspassword
       value: JHJIMjR4RHB3eU16
@@ -62,7 +62,7 @@ patchesJson6902:
   patch: |-
     - op: replace
       path: /spec/hosts/0
-      value: "20.124.77.161"
+      value: "20.119.115.169"
 
     - op: replace
       path: /spec/http/0/route/0/destination/host
