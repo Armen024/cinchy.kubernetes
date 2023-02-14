@@ -20,7 +20,7 @@ patchesJson6902:
       path: /spec/jobTemplate/spec/template/spec/containers/0/env/-
       value:
         name: CINCHY_INSTANCE_URL
-        value: 20.124.77.161
+        value: 20.121.92.179
 #    - op: replace
 #      path: /spec/jobTemplate/spec/template/spec/volumes/0
 #      value:
