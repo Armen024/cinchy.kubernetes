@@ -17,10 +17,8 @@ spec:
   - port:
      number: 443
      name: https
-     protocol: HTTPS
+     protocol: HTTP
     tls:
-      mode: SIMPLE
-      credentialName: ssl-cert-secret
-      minProtocolVersion: TLSV1_2
+      mode: AUTO_PASSTHROUGH
     hosts:
     - "20.121.92.179"

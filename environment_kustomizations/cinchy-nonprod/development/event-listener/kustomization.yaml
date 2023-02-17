@@ -1,0 +1,92 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/event-listener
+namespace: development
+commonLabels:
+  app: event-listener
+  env: development
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: event-listener-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.event-listener:v5.4.0
+    - op: replace
+      path: /spec/template/spec/containers/0/env/0/name
+      value: development-EventListener_Node_Hostname
+    - op: replace
+      path: /spec/template/spec/containers/0/env/1/name
+      value: development-EventListener_Node_Port
+    - op: replace
+      path: /spec/template/spec/containers/0/env/2/name
+      value: development-EventListener_Node_Protocol
+    - op: add
+      path: /spec/template/spec/volumes/-
+      value: 
+        name: event-listener-volume-redis-password
+        secret:
+          secretName: redis-redis-cluster
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value: 
+        name: event-listener-volume-redis-password
+        readOnly: true
+        mountPath: "/usr/share/redis/redis-redis-cluster"
+#    - op: replace
+#      path: /spec/template/spec/volumes/0
+#      value:
+#        name: event-listener-volume-appsettings
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "event-listener-secret-appsettings"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: event-listener-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "event-listener-secret-appsettings-development"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: eventlistenersecretappsettings
+              objectAlias: appsettings.json
+- target:
+    version: v1
+    kind: Secret
+    name: event-listener-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: ewogICAgIkNpbmNoeUNsaWVudFNldHRpbmdzIjogewogICAgICAgICJVcmwiOiAiaHR0cDovLzIwLjEyMS45Mi4xNzkiLAogICAgICAgICJVc2VybmFtZSI6ICIiLAogICAgICAgICJQYXNzd29yZCI6ICIiICAKICAgIH0sCiAgICAiQXBwU2V0dGluZ3MiOiB7CiAgICAiR2V0TmV3TGlzdGVuZXJDb25maWdzSW50ZXJ2YWwiOiAiNjAiLAogICAgIlN0YXRlRmlsZUxvY2F0aW9uIjogIi9hcHAvZGF0YS9ldmVudC1saXN0ZW5lci9zdGF0ZWZpbGVzIiwKICAgICJLYWZrYUNsaWVudENvbmZpZyI6IHsKICAgICAgIkJvb3RzdHJhcFNlcnZlcnMiOiAia2Fma2EtY2x1c3Rlci1rYWZrYS1ib290c3RyYXAua2Fma2Euc3ZjLmNsdXN0ZXIubG9jYWw6OTA5MiIKICAgIH0KICB9LAogICJDb25uZWN0aW9uU3RyaW5ncyI6IHsKICAgICJTcWxTZXJ2ZXIiOiAiIiwKICAgICJSZWRpcyI6ICJyZWRpcy1yZWRpcy1jbHVzdGVyLnJlZGlzLnN2Yy5jbHVzdGVyLmxvY2FsOjYzNzkiCiAgfSwKICAiQ2x1c3RlckNvbmZpZ3VyYXRpb24iOiB7CiAgICAibG93ZXJFbGVjdGlvblRpbWVvdXQiOiAxNTAsCiAgICAidXBwZXJFbGVjdGlvblRpbWVvdXQiOiAzMDAsCiAgICAicmVxdWVzdFRpbWVvdXQiOiAiMDA6MDE6MDAiLAogICAgImtlZXBBbGl2ZVRpbWVvdXQiOiAiMDA6MDI6MDAiCiAgfSwKICAiQWxsb3dlZEhvc3RzIjogIioiLAogICJTZXJpbG9nIjogewogICAgIk1pbmltdW1MZXZlbCI6IHsKICAgICAgIkRlZmF1bHQiOiAiRGVidWciLAogICAgICAiT3ZlcnJpZGUiOiB7CiAgICAgICAgIk1pY3Jvc29mdCI6ICJXYXJuaW5nIiwKICAgICAgICAiU3lzdGVtLk5ldCI6ICJXYXJuaW5nIiwKICAgICAgICAiTWljcm9zb2Z0Lkhvc3RpbmcuTGlmZXRpbWUiOiAiSW5mb3JtYXRpb24iLAogICAgICAgICJEb3ROZXh0Lk5ldC5DbHVzdGVyIjogIkluZm9ybWF0aW9uIiwKICAgICAgICAiQ2luY2h5LkNvbW1vbi5DbHVzdGVyaW5nLkNsdXN0ZXJDb25maWd1cmF0aW9uUHJvdmlkZXIiOiAiSW5mb3JtYXRpb24iCiAgICAgIH0KICAgIH0sCiAgICAiV3JpdGVUbyI6IFsKICAgICAgewogICAgICAgICJOYW1lIjogIkNvbnNvbGUiLAogICAgICAgICJBcmdzIjogewogICAgICAgICAgImZvcm1hdHRlciI6ICJTZXJpbG9nLkZvcm1hdHRpbmcuQ29tcGFjdC5Db21wYWN0SnNvbkZvcm1hdHRlciwgU2VyaWxvZy5Gb3JtYXR0aW5nLkNvbXBhY3QiCiAgICAgICAgfQogICAgICB9CiAgICBdCiAgfQp9
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: event-listener-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: development-event-listener-app
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-realtimedatasynctopic
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: development-realtimedatasynctopic
+    - op: replace
+      path: /metadata/namespace
+      value: kafka

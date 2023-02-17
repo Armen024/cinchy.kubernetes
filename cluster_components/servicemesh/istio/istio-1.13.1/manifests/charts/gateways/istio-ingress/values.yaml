@@ -46,8 +46,27 @@ gateways:
 
     loadBalancerIP: ""
     loadBalancerSourceRanges: []
-    serviceAnnotations: 
-      service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    serviceAnnotations:
+      # Note that the backend talks over HTTP.
+      # service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
+      # TODO: Fill in with the ARN of your certificate.
+      service.beta.kubernetes.io/aws-load-balancer-ssl-cert: 
+      # Only run SSL on the port named "https" below.
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+      service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "300"
+      # Loadbalancer run as internal
+      service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      # proxy.istio.io/config: '{"gatewayTopology" : { "numTrustedProxies": 2 } }'
+      # kubernetes.io/ingress.class: alb
+      # Specifies whether cross-zone load balancing is enabled for the load balancer
+      service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+      # Add support for SSL/TLS 1.2 and 1.3 protocol
+      service.beta.kubernetes.io/aws-load-balancer-ssl-negotiation-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      # service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+      # service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: "*"
+      # service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: proxy_protocol_v2.enabled=true
 
     podAnnotations: {}
     type: LoadBalancer #change to NodePort, ClusterIP or LoadBalancer if need be

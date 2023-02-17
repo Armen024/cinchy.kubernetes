@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/worker
+namespace: development
+commonLabels:
+  app: worker
+  env: development
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: worker-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.connections.worker:v5.4.0
+#    - op: replace
+#      path: /spec/template/spec/volumes/0
+#      value:
+#        name: worker-volume-appsettings
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "worker-secret-appsettings"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: worker-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "worker-secret-appsettings-development"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: workersecretappsettings
+              objectAlias: appsettings.json
+- target:
+    version: v1
+    kind: Secret
+    name: worker-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: ewogICAgIkNpbmNoeUNsaWVudFNldHRpbmdzIjogewogICAgICAgICJVcmwiOiAiaHR0cDovLzIwLjEyMS45Mi4xNzkiLAogICAgICAgICJVc2VybmFtZSI6ICIiLAogICAgICAgICJQYXNzd29yZCI6ICIiICAKICAgIH0sCiAgICAiQXBwU2V0dGluZ3MiOiB7CiAgICAiTW9kZWwiOiAiQ2luY2h5IiwKICAgICJUZW1wRGlyZWN0b3J5IjogIi90bXAiLAogICAgIlRsc1ZlcnNpb24iOiAiIiwKICAgICJXb3JrZXJUaHJlYWRDb3VudCI6ICIxMiIsCiAgICAiV29ya2VyQmF0Y2hTaXplTGltaXQiOiAiMjAiLAogICAgIkthZmthQ2xpZW50Q29uZmlnIjogewogICAgICAiQm9vdHN0cmFwU2VydmVycyI6ICJrYWZrYS1jbHVzdGVyLWthZmthLWJvb3RzdHJhcC5rYWZrYS5zdmMuY2x1c3Rlci5sb2NhbDo5MDkyIgogICAgfSwKICAgICJLYWZrYU1lc3NhZ2VDb25zdW1lTXNMaW1pdCI6IDEwMCwKICAgICJLYWZrYU1lc3NhZ2VCYXRjaENvbnN1bWVNc0xpbWl0IjogMjAwCiAgfSwKICAiQ29ubmVjdGlvblN0cmluZ3MiOiB7CiAgICAiU3FsU2VydmVyIjogIiIKICB9LAogICJTZXJpbG9nIjogewogICAgIk1pbmltdW1MZXZlbCI6IHsKICAgICAgIkRlZmF1bHQiOiAiRGVidWciLAogICAgICAiT3ZlcnJpZGUiOiB7CiAgICAgICAgIk1pY3Jvc29mdCI6ICJXYXJuaW5nIiwKICAgICAgICAiU3lzdGVtLk5ldCI6ICJXYXJuaW5nIgogICAgICB9CiAgICB9LAogICAgIldyaXRlVG8iOiBbCiAgICAgIHsKICAgICAgICAiTmFtZSI6ICJDb25zb2xlIiwKICAgICAgICAiQXJncyI6IHsKICAgICAgICAgICJmb3JtYXR0ZXIiOiAiU2VyaWxvZy5Gb3JtYXR0aW5nLkNvbXBhY3QuQ29tcGFjdEpzb25Gb3JtYXR0ZXIsIFNlcmlsb2cuRm9ybWF0dGluZy5Db21wYWN0IgogICAgICAgIH0KICAgICAgfQogICAgXQogIH0KfQ==
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: worker-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: development-worker-app

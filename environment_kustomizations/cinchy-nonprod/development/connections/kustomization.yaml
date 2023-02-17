@@ -1,0 +1,136 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../../../../platform_components/connections
+namespace: development
+commonLabels:
+  app: connections
+  env: development
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: connections-app
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/image
+      value: 658484148438.dkr.ecr.ca-central-1.amazonaws.com/cinchy.connections.webapi:v5.4.0
+    - op: add
+      path: /spec/template/spec/volumes/-
+      value: 
+        name: connections-volume-redis-password
+        secret:
+          secretName: redis-redis-cluster
+    - op: add
+      path: /spec/template/spec/containers/0/volumeMounts/-
+      value: 
+        name: connections-volume-redis-password
+        readOnly: true
+        mountPath: "/usr/share/redis/redis-redis-cluster"
+#    - op: replace
+#      path: /spec/template/spec/volumes/0
+#      value:
+#        name: connections-volume-appsettings
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "connections-secret-appsettings"
+#    - op: replace
+#      path: /spec/template/spec/volumes/1
+#      value:
+#        name: connections-volume-config
+#        csi:
+#          driver: secrets-store.csi.k8s.io
+#          readOnly: true
+#          volumeAttributes:
+#            secretProviderClass: "connections-secret-config"
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: connections-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "connections-secret-appsettings-development"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: connectionssecretappsettings
+              objectAlias: appsettings.json
+- target:
+    group: secrets-store.csi.x-k8s.io
+    version: v1
+    kind: SecretProviderClass
+    name: connections-secret-config
+  patch: |-
+    - op: replace
+      path: /spec/parameters
+      value: 
+        objects:  |
+          - objectName: "connections-secret-config-development"
+            objectType: "secretsmanager"
+            jmesPath:
+            - path: connectionssecretconfig
+              objectAlias: config.json
+- target:
+    version: v1
+    kind: Secret
+    name: connections-secret-appsettings
+  patch: |-
+    - op: replace
+      path: /data/appsettings.json
+      value: ewogICJDaW5jaHlDbGllbnRTZXR0aW5ncyI6IHsKICAgICJVcmwiOiAiaHR0cDovLzIwLjEyMS45Mi4xNzkiLAogICAgIlVzZXJuYW1lIjogIiIsCiAgICAiUGFzc3dvcmQiOiAiIiAgCiAgfSwKICAiQXBwU2V0dGluZ3MiOiB7CiAgICAiVGVtcERpcmVjdG9yeSI6ICIvYXBwL3RtcCIsCiAgICAiTW9kZWwiOiAiQ2luY2h5IiwKICAgICJLYWZrYUNsaWVudENvbmZpZyI6IHsKICAgICAgIkJvb3RzdHJhcFNlcnZlcnMiOiAia2Fma2EtY2x1c3Rlci1rYWZrYS1ib290c3RyYXAua2Fma2Euc3ZjLmNsdXN0ZXIubG9jYWw6OTA5MiIKICAgIH0sCiAgICAiS2Fma2FDb25zdW1lclRocmVhZENvdW50IjogIjIiLAogICAgIkthZmthTWVzc2FnZUNvbnN1bWVNc0xpbWl0IjogMTAwLAogICAgIkthZmthTWVzc2FnZUJhdGNoQ29uc3VtZU1zTGltaXQiOiAyMDAsCiAgICAiU3RvcmFnZVR5cGUiOiAiUzMiLAogICAgIkJhc2VQYXRoT3ZlcnJpZGUiOiAiIgogIH0sCiAgIkNvbm5lY3Rpb25TdHJpbmdzIjogewogICAgIlJlZGlzIjogInJlZGlzLXJlZGlzLWNsdXN0ZXIucmVkaXMuc3ZjLmNsdXN0ZXIubG9jYWw6NjM3OSIKICB9LAogICJBenVyZUJsb2JTdG9yYWdlU2V0dGluZ3MiOiB7CiAgICAiQ29ubmVjdGlvblN0cmluZyI6ICI8PGF6dXJlX2Jsb2Jfc3RvcmFnZV9jb25uX3N0cj4+IiwKICAgICJDb250YWluZXIiOiAiPDxjb25uZWN0aW9uc19zdG9yYWdlX2NvbnRhaW5lcl9uYW1lPj4iLAogICAgIkJhc2VQYXRoIjogImRldmVsb3BtZW50L2NpbmNoeWNvbm5lY3Rpb25zIgogIH0sCiAgIlMzU2V0dGluZ3MiOiB7CiAgICAiQWNjZXNzS2V5IjogIkFLSUFYUDJQVFVHQ1FNWEVMUU40IiwKICAgICJTZWNyZXRBY2Nlc3NLZXkiOiAiUnc1emMzTWp0NTYzeVdkbmJDV2ZqbDJQN093N1R6WEkvanNscDZjQyIsCiAgICAiUmVnaW9uIjogInVzLWVhc3QtMSIsCiAgICAiQnVja2V0IjogImFjdW1lbi1jaW5jaHktbm9ucHJvZCIsCiAgICAiQmFzZVBhdGgiOiAiZGV2ZWxvcG1lbnQvY2luY2h5Y29ubmVjdGlvbnMiLAogICAgIlNlcnZpY2VVUkwiOiAiIgogIH0sCiAgIkFsbG93ZWRIb3N0cyI6ICIqIiwKICAiU2VyaWxvZyI6IHsKICAgICJNaW5pbXVtTGV2ZWwiOiB7CiAgICAgICJEZWZhdWx0IjogIlZlcmJvc2UiLAogICAgICAiT3ZlcnJpZGUiOiB7CiAgICAgICAgIk1pY3Jvc29mdCI6ICJWZXJib3NlIiwKICAgICAgICAiU3lzdGVtLk5ldCI6ICJWZXJib3NlIgogICAgICB9CiAgICB9LAogICAgIldyaXRlVG8iOiBbCiAgICAgIHsKICAgICAgICAiTmFtZSI6ICJDb25zb2xlIiwKICAgICAgICAiQXJncyI6IHsKICAgICAgICAgICJmb3JtYXR0ZXIiOiAiU2VyaWxvZy5Gb3JtYXR0aW5nLkNvbXBhY3QuQ29tcGFjdEpzb25Gb3JtYXR0ZXIsIFNlcmlsb2cuRm9ybWF0dGluZy5Db21wYWN0IgogICAgICAgIH0KICAgICAgfQogICAgXQogIH0KfQo=
+- target:
+    version: v1
+    kind: Secret
+    name: connections-secret-config
+  patch: |-
+    - op: replace
+      path: /data/config.json
+      value: ewogICAgImF1dGhvcml0eSI6ICJodHRwOi8vMjAuMTIxLjkyLjE3OS9pZHAiLAogICAgImNpbmNoeVJvb3RVcmwiOiAiaHR0cDovLzIwLjEyMS45Mi4xNzkiLAogICAgImNsaWVudElkIjogImNpbmNoeV9jb25uZWN0aW9uc19leHBlcmllbmNlIiwKICAgICJyZWRpcmVjdFVyaSI6ICJodHRwOi8vMjAuMTIxLjkyLjE3OS9jb25uZWN0aW9ucyIsCiAgICAic2lsZW50UmVmcmVzaFJlZGlyZWN0VXJpIjogIjIwLjEyMS45Mi4xNzkvY29ubmVjdGlvbnMvc2lsZW50LXJlZnJlc2guaHRtbCIsCiAgICAic2lsZW50UmVmcmVzaEVuYWJsZWQiOiB0cnVlLAogICAgIm1vZGVsIjogIkNpbmNoeSIsCiAgICAiZG9tYWluIjogIkNpbmNoeSIsCiAgICAidXNlSHR0cHMiOiBmYWxzZSwKICAgICJzZXJ2ZXIiOiAiMjAuMTIxLjkyLjE3OSIsCiAgICAidmVyc2lvbiI6ICIxLjAuMCIKfQ==
+- target:
+    group: logging.banzaicloud.io
+    version: v1beta1
+    kind: Output
+    name: connections-logging-stdout
+  patch: |-
+    - op: replace
+      path: /spec/elasticsearch/index_name
+      value: development-connections-app
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-connectionsjobcancellationrequests
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: development-connectionsjobcancellationrequests
+    - op: replace
+      path: /metadata/namespace
+      value: kafka
+- target:
+    group: kafka.strimzi.io
+    version: v1beta2
+    kind: KafkaTopic
+    name: <environment>-connectionsjobqueue
+  patch: |-
+    - op: replace
+      path: /metadata/name
+      value: development-connectionsjobqueue
+    - op: replace
+      path: /metadata/namespace
+      value: kafka
+- target:
+    group: networking.istio.io
+    version: v1alpha3
+    kind: DestinationRule
+    name: connections-destinationrule
+  patch: |-
+    - op: replace
+      path: /spec/trafficPolicy/loadBalancer/consistentHash/httpCookie/name
+      value: development-connections-canary
